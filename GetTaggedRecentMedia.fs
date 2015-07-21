@@ -73,7 +73,8 @@ let accessToken =
 let handleRedirect =
     request ( fun r ->
         match r.queryParam "code" with
-        | Choice1Of2 code -> OK (postCode(code) |> accessToken)
+        | Choice1Of2 code -> OK (code |> postCode |> accessToken)
+//        | Choice1Of2 code -> OK ( (postCode >> accessToken) code) //same same but different
         | Choice2Of2 msg -> BAD_REQUEST msg)
 
     //sprintf "Here's the url from Instagram : %s now we can execute 
@@ -89,8 +90,6 @@ let app : WebPart =
 
 [<EntryPoint>]
 let main argv = 
-    printfn "%A" Settings.ConfigFileName
-    printfn "%A" Settings.Oauthclientid
 
     let cts = new CancellationTokenSource()
     let startingServer, shutdownServer = startWebServerAsync serverConfig app
