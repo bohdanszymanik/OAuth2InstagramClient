@@ -1,5 +1,14 @@
 ﻿// todo: use the project scaffold to set up correctly on github https://github.com/fsprojects/ProjectScaffold
 
+(*
+
+    What's this about? It queries Instagram recent media by tag and saves the response. It's part of a research project
+    looking at crafts around the world so we're interested in pulling out:
+        - other tags
+        - location
+        - comments
+*)
+
 open System
 open Suave
 open Suave.Http
@@ -9,6 +18,10 @@ open Suave.Http.RequestErrors
 open Suave.Web
 open Suave.Types
 open System.Threading
+open System.IO
+open FSharp.Data
+open System.Security.Cryptography
+open System.Runtime.Remoting.Metadata.W3cXsd2001 // does hex string <-> byte conversions
 
 (* 
     Read secret configuration
@@ -27,14 +40,21 @@ except I can't get FSharp.Configuration to work in this project
 
 //type Settings = AppSettings<"secret.config"> // doh! bug here - this isn't working
 // so fall back onto something else
-open System.IO
 let [|clientId; secret|] =  File.ReadAllLines(__SOURCE_DIRECTORY__ + "\\oauth.secret")
 
 let redirectUri = "http://localhost:1410"
 
+// some code for creating the Instagram HMACSHA256 signature - should I want to...
+let bytesFromHexString s = SoapHexBinary.Parse(s).Value
+let hmacsha256 = new HMACSHA256(secret |> bytesFromHexString)
+
 // define the function here to retrieve the json encoded instagram data
-let tagsMediaRecentUrl tagName accessToken =
-    sprintf "https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s" tagName accessToken
+let getRecentlyTaggedMedia tagName accessToken =
+    let recentTags = sprintf "https://api.instagram.com/v1/tags/%s/media/recent?access_token=%s" tagName accessToken
+    let json = Http.RequestString(recentTags)
+    let filename = sprintf @"c:\temp\%s.json" tagName
+    File.WriteAllText(filename, json)
+    sprintf "Wrote %d characters to %s" json.Length filename
 
 let serverConfig =
   { defaultConfig with
@@ -44,7 +64,6 @@ let serverConfig =
 
 // this is a representative redirect url from instagram
 // http://localhost:1410/?code=9ab66fabd418419e8ea9e73123127c0f&state=ewpBNSn7W7
-open FSharp.Data
 let postCode code =
     Http.RequestString("https://api.instagram.com/oauth/access_token", 
 //                        body=FormValues [   "client_id",Settings.OaUthClientId;
@@ -63,7 +82,7 @@ type tokenJson = JsonProvider<"""{
         "full_name": "Snoop Dogg",
         "profile_picture": "..."
     }
-}"""> // as copied from Instagram docs https://instagram.com/developer/authentication/
+}"""> // as copied from Instagram docs https://instagram.com/developer/authentication/ maakes a good sample for th JsonProvider
 
 let accessToken =
     fun json ->
@@ -73,7 +92,7 @@ let accessToken =
 let handleRedirect =
     request ( fun r ->
         match r.queryParam "code" with
-        | Choice1Of2 code -> OK (code |> postCode |> accessToken)
+        | Choice1Of2 code -> OK (code |> postCode |> accessToken |> getRecentlyTaggedMedia "sewing")
 //        | Choice1Of2 code -> OK ( (postCode >> accessToken) code) //same same but different
         | Choice2Of2 msg -> BAD_REQUEST msg)
 
@@ -103,6 +122,8 @@ let main argv =
 
     let url = sprintf "https://api.instagram.com/oauth/authorize/?client_id=%s&redirect_uri=%s&response_type=code" clientId redirectUri
     System.Diagnostics.Process.Start("iexplore.exe", url) |> ignore
+
+    //tagsMediaRecentUrl "sewing" accessToken
 
     printfn "Press Enter to stop"
     Console.Read() |> ignore
