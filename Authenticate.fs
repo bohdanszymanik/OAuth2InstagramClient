@@ -1,4 +1,5 @@
-﻿// todo: use the project scaffold to set up correctly on github https://github.com/fsprojects/ProjectScaffold
+﻿module Instagrams.App
+// todo: use the project scaffold to set up correctly on github https://github.com/fsprojects/ProjectScaffold
 // todo: add pagination
 // todo: add route to get tag
 
