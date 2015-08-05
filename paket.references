@@ -3,3 +3,4 @@ FSharp.Core
 FSharp.Data
 FsPickler
 Suave
+Suave.Experimental
