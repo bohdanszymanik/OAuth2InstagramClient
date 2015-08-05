@@ -1,4 +1,6 @@
 ﻿// todo: use the project scaffold to set up correctly on github https://github.com/fsprojects/ProjectScaffold
+// todo: add pagination
+// todo: add route to get tag
 
 (*
 
@@ -92,14 +94,12 @@ let accessToken =
 let handleRedirect =
     request ( fun r ->
         match r.queryParam "code" with
-        | Choice1Of2 code -> OK (code |> postCode |> accessToken |> getRecentlyTaggedMedia "sewing")
+        | Choice1Of2 code -> OK (code |> postCode |> accessToken |> getRecentlyTaggedMedia "stitching")
 //        | Choice1Of2 code -> OK ( (postCode >> accessToken) code) //same same but different
         | Choice2Of2 msg -> BAD_REQUEST msg)
 
     //sprintf "Here's the url from Instagram : %s now we can execute 
     //                    a function to retrieve the json encoded data for our query" req.rawQuery
-    
-
 
 let app : WebPart =
   choose
