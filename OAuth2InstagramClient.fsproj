@@ -56,7 +56,8 @@
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="GetTaggedRecentMedia.fs" />
+    <Compile Include="View.fs" />
+    <Compile Include="Authenticate.fs" />
     <None Include="App.config" />
     <Content Include="packages.config" />
     <None Include="Script1.fsx" />

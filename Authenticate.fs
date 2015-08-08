@@ -1,4 +1,4 @@
-﻿module Instagrams.App
+﻿module Instagrams.Auth
 // todo: use the project scaffold to set up correctly on github https://github.com/fsprojects/ProjectScaffold
 // todo: add pagination
 // todo: add route to get tag
@@ -104,7 +104,15 @@ let handleRedirect =
 
 let app : WebPart =
   choose
-    [ path "/" >>= handleRedirect ]
+    [ 
+        GET >>= choose [
+            path "/" >>= handleRedirect 
+            pathScan "/tag/%s" (fun t -> OK (sprintf "Tag: %s" t))
+        ]
+        POST >>= choose [
+            path "/tags" >>= OK View.instagramQueries
+        ]
+    ]
 
 
 
