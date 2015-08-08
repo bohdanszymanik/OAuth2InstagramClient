@@ -21,7 +21,7 @@ let instagramQueries =
 
             divId "main" [
                 p [
-                    text "Idea here is to have a form with box to put in the list of tags then a button to POST them back to be used in the recent media query on the instagram api"
+                    text "Idea here is to have a form with box to put in the list of tags, then a button to POST them back to be used in the recent media query on the instagram api"
                 ]
                 form [
                     submitInput "Submit tags"
